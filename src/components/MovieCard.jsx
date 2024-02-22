@@ -1,21 +1,22 @@
-import image from "../../assets/im.png";
-import image1 from "../../assets/rot.png";
+import image from "../assets/im.png";
+import image1 from "../assets/rot.png";
 import { Link } from "react-router-dom";
 
-function Tv ({trend, trendid}){
-    return(
-        <section className="border-2 ">
-        <div className="h-[600px] md:h-[620px] flex flex-col md:flex-col md:gap-3 shadow-xl mx-auto relative" >
-          <div className=" ">
-            <Link to={`/tv/${trendid}`}>
-              <img
-                datatestid="tv-poster"
-                src={`https://image.tmdb.org/t/p/w500${trend.poster_path}`}
-                alt=""
-                className="h-[460px] w-full object-cover"
-              />
-            </Link>
-  
+export function MovieCard({ media, mediaType }) {
+  return (
+    <li className="shadow-md">
+      <Link
+        to={`/${mediaType === "movie" ? "movies" : "tv-series"}/${media.id}`}
+        className="flex flex-col gap-3 relative"
+      >
+        <div>
+          <img
+            src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
+            alt=""
+            className="w-full object-cover"
+          />
+
+          <div>
             <div className="absolute top-2 mr-3 w-[19px] h-[19px] right-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -61,6 +62,7 @@ function Tv ({trend, trendid}){
                 </defs>
               </svg>
             </div>
+
             <div className="absolute top-2 mr-3 w-[19px] h-[19px] right-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -78,19 +80,19 @@ function Tv ({trend, trendid}){
               </svg>
             </div>
           </div>
-          <p
-            className="w-[114px] h-[16px] font-bold text-xs text-[#9CA3AF] "
-            data-testid="movie-release-date"
-          >
-            {trend.release_date || trend.first_air_date}
+        </div>
+
+        <div className="px-3 py-4">
+          <p className="font-bold text-[#9CA3AF] ">
+            {media.release_date || media.first_air_date}
           </p>
-          <h1
-            className=" w-full lg:w-[250px] font-bold md:w-[230px] md:text-[16px]  text-[18px]  text-[#111827] flex-wrap"
-            data-testid="movie-title"
-          >
-            {trend.title || trend.name}
+
+          <h1 className="font-bold text-lg text-[#111827]">
+            {" "}
+            {media.title || media.name}{" "}
           </h1>
-          <div className=" h-[17px] flex items-center justify-between mt-3">
+
+          <div className="flex items-center justify-between pt-4">
             <div className="flex items-center">
               <img src={image} className="w-[35px] h-[17px] mr-2" alt="IMDB" />
               <p className="text-xs font-medium text-[#111827] w-[56px] h-[12px] leading-[12px]">
@@ -98,22 +100,22 @@ function Tv ({trend, trendid}){
               </p>
             </div>
             <div className="flex items-center">
-              <img src={image1} className="w-[16px] h-[17px] mr-2" alt="rotten" />
+              <img
+                src={image1}
+                className="w-[16px] h-[17px] mr-2"
+                alt="rotten"
+              />
               <p className="text-xs font-medium text-[#111827] w-[23px] h-[12px] leading-[12px] ">
                 97%
               </p>
             </div>
           </div>
-          <div className="w-[148px] h-[16px]">
-            <p
-              className="font-bold text-xs text-[#9CA3AF]"
-              data-testid="tv-type"
-            >
-              {trend.media_type}
-            </p>
-          </div>
+
+          <p className="font-bold text-[#9CA3AF] pt-2 capitalize">
+            {media.media_type}
+          </p>
         </div>
-      </section>
-    )
+      </Link>
+    </li>
+  );
 }
-export default Tv;
