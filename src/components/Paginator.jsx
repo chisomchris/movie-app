@@ -8,8 +8,7 @@ export const Paginator = () => {
   const elemRef = useRef();
   const { resizeObserver, buttons } = useObserveElementWidth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [index, setIndex] = useState(true);
-  const [pages, setPages] = useState(2);
+  const [start, setStart] = useState(1);
 
   const {
     medias: { total_pages },
@@ -28,33 +27,54 @@ export const Paginator = () => {
     setSearchParams(searchParams);
   };
 
-  const changeRange = (direction, steps) => {
-    let range = Math.floor(currentIndex / steps) * steps;
-    range = currentIndex == range ? range / currentIndex - 1 : range;
+  const changeRange = (direction) => {
+    if (elemRef.current) {
+      const start = Number(elemRef.current.querySelector("button").textContent);
+      const pointer =
+        direction === "+"
+          ? start + buttons
+          : direction === "-"
+          ? start - buttons
+          : start;
+      setStart(
+        pointer < 1
+          ? 1
+          : pointer > total_pages - buttons
+          ? total_pages - buttons
+          : pointer
+      );
+    }
   };
 
-  useEffect(() => {
-    resizeObserver.observe(elemRef.current);
-  }, []);
-
-  const getArray = (currentIndex, steps, newRange) => {
-    if (index) {
-      let rang = pages * steps;
-      console.log(rang);
-    }
+  const getArray = (start) => {
     const arr = [];
-    let range = Math.floor(currentIndex / steps) * steps;
-    range = currentIndex == range ? (range / steps - 1) * steps : range;
-    for (let i = range; i < range + steps; i++) {
-      arr.push(i + 1);
+    for (let i = start; i < start + buttons; i++) {
+      arr.push(i);
     }
     return arr;
   };
 
+  // update starting index for pagination buttons when search param changes or when number of buttons change
+  useEffect(() => {
+    const currentIndex = Number(searchParams.get("page")) || 1;
+    setStart(Math.floor((currentIndex - 0.001) / buttons) * buttons + 1);
+  }, [searchParams, buttons]);
+
+  // attach a resize observer to buttons container
+  useEffect(() => {
+    resizeObserver.observe(elemRef.current);
+  }, []);
+
   return (
     <div className="flex gap-x-10 gap-y-4 py-6 justify-between flex-wrap sm:flex-nowrap">
       <div className="flex gap-3 flex-nowrap">
-        <PrevNextBtn mode="skip" direction="backward" />
+        <PrevNextBtn
+          mode="skip"
+          direction="backward"
+          onClick={() => {
+            changeRange("-");
+          }}
+        />
         <PrevNextBtn
           direction="backward"
           className="group"
@@ -66,11 +86,9 @@ export const Paginator = () => {
 
       <div ref={elemRef} className="min-w-[200px] flex-grow flex-shrink">
         <div className={`grid grid-rows-1 gap-3 grid-cols-${buttons}`}>
-          {getArray(Number(searchParams.get("page")) || 1, buttons).map(
-            (page) => (
-              <Button number={page} key={page} />
-            )
-          )}
+          {getArray(start).map((page) => (
+            <Button number={page} key={page} />
+          ))}
         </div>
       </div>
 
@@ -78,7 +96,12 @@ export const Paginator = () => {
         <PrevNextBtn className="group" onClick={() => prevNext("+")}>
           <ToolTip text="Next Page" />
         </PrevNextBtn>
-        <PrevNextBtn mode="skip" />
+        <PrevNextBtn
+          mode="skip"
+          onClick={() => {
+            changeRange("+");
+          }}
+        />
       </div>
     </div>
   );
